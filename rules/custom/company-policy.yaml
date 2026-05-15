@@ -1,0 +1,101 @@
+# Company-specific security hardening policies
+# Extends CIS benchmarks with additional company requirements
+rules:
+  - id: "COMPANY-ARCH-1"
+    category: "kernel-config"
+    title: "Disable unnecessary CPU architectures in kernel"
+    severity: "low"
+    eval_type: "kernel_config_not_set"
+    source: "company-policy"
+    params:
+      config_keys:
+        - "CONFIG_IA32_EMULATION"
+        - "CONFIG_X86_X32"
+    enabled: true
+
+  - id: "COMPANY-CRYPTO-1"
+    category: "kernel-config"
+    title: "Disable weak cryptographic algorithms"
+    severity: "high"
+    eval_type: "kernel_config_not_set"
+    source: "company-policy"
+    params:
+      config_keys:
+        - "CONFIG_CRYPTO_DES"
+        - "CONFIG_CRYPTO_MD4"
+        - "CONFIG_CRYPTO_SHA1"
+    enabled: true
+
+  - id: "COMPANY-DEBUG-1"
+    category: "kernel-config"
+    title: "Disable kernel debugging features in production"
+    severity: "medium"
+    eval_type: "kernel_config_not_set"
+    source: "company-policy"
+    params:
+      config_keys:
+        - "CONFIG_DEBUG_KERNEL"
+        - "CONFIG_KGDB"
+        - "CONFIG_MAGIC_SYSRQ"
+        - "CONFIG_KALLSYMS"
+        - "CONFIG_DEBUG_FS"
+    enabled: true
+
+  - id: "COMPANY-LOGGING-1"
+    category: "kernel-config"
+    title: "Enable audit subsystem for security events"
+    severity: "medium"
+    eval_type: "kernel_config_is_set"
+    source: "company-policy"
+    params:
+      config_key: "CONFIG_AUDIT"
+      expected_value: "y"
+
+  - id: "COMPANY-NETWORK-1"
+    category: "kernel-config"
+    title: "Disable wireless networking if not required"
+    severity: "low"
+    eval_type: "kernel_config_not_set"
+    source: "company-policy"
+    params:
+      config_keys:
+        - "CONFIG_WIRELESS"
+        - "CONFIG_WLAN"
+        - "CONFIG_BT"
+    enabled: false  # Disabled by default, enable if product has no wireless
+
+  - id: "COMPANY-COMPILER-1"
+    category: "compiler-flags"
+    title: "All packages must be compiled with -O2 (no -O0 or -Os for security)"
+    severity: "medium"
+    eval_type: "cflag_contains"
+    source: "company-policy"
+    params:
+      flag: "-O2"
+      scope: "all_packages"
+      min_packages: 0
+
+  - id: "COMPANY-RUNTIME-1"
+    category: "runtime-file"
+    title: "Ensure custom sysctl security settings are applied"
+    severity: "medium"
+    eval_type: "file_content_check"
+    source: "company-policy"
+    params:
+      path: "etc/sysctl.d/99-company-security.conf"
+      must_contain_regex: "^kernel\\.randomize_va_space\\s*=\\s*2"
+      min_matches: 1
+    enabled: true
+
+  - id: "COMPANY-BB-1"
+    category: "build-config"
+    title: "Ensure no known-vulnerable packages are in the build"
+    severity: "high"
+    eval_type: "pn_blacklist_check"
+    source: "company-policy"
+    params:
+      blacklisted:
+        - "openssl10"
+        - "dropbear"
+      pnblacklist: ""
+    enabled: true

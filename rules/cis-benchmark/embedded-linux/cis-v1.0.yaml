@@ -1,0 +1,579 @@
+# CIS Benchmarks for Embedded Linux - v1.0
+# A subset of the most impactful rules for embedded/Yocto-based systems
+rules:
+  # ---- 1. Kernel Hardening ----
+  - id: "CIS-1.1.1"
+    category: "kernel-config"
+    title: "Disable unused filesystems"
+    severity: "medium"
+    eval_type: "kernel_config_not_set"
+    source: "cis-embedded-v1.0"
+    params:
+      config_keys:
+        - "CONFIG_CRAMFS"
+        - "CONFIG_FREEVXFS"
+        - "CONFIG_JFFS2_FS"
+        - "CONFIG_HFS_FS"
+        - "CONFIG_HFSPLUS_FS"
+        - "CONFIG_UDF_FS"
+        - "CONFIG_SQUASHFS"
+
+  - id: "CIS-1.4.1"
+    category: "kernel-config"
+    title: "Disable user namespaces"
+    severity: "high"
+    eval_type: "kernel_config_is_set"
+    source: "cis-embedded-v1.0"
+    params:
+      config_key: "CONFIG_USER_NS"
+      expected_value: "is not set"
+
+  - id: "CIS-1.4.2"
+    category: "kernel-config"
+    title: "Disable kexec system call"
+    severity: "medium"
+    eval_type: "kernel_config_is_set"
+    source: "cis-embedded-v1.0"
+    params:
+      config_key: "CONFIG_KEXEC"
+      expected_value: "is not set"
+
+  - id: "CIS-1.5.1"
+    category: "kernel-config"
+    title: "Enable ASLR (Address Space Layout Randomization)"
+    severity: "high"
+    eval_type: "kernel_config_is_set"
+    source: "cis-embedded-v1.0"
+    params:
+      config_key: "CONFIG_RANDOMIZE_BASE"
+      expected_value: "y"
+
+  - id: "CIS-1.5.2"
+    category: "kernel-config"
+    title: "Enable kernel stack protection"
+    severity: "high"
+    eval_type: "kernel_config_is_set"
+    source: "cis-embedded-v1.0"
+    params:
+      config_key: "CONFIG_STACKPROTECTOR"
+      expected_value: "y"
+
+  - id: "CIS-1.5.3"
+    category: "kernel-config"
+    title: "Enable strict kernel memory permissions"
+    severity: "high"
+    eval_type: "kernel_config_is_set"
+    source: "cis-embedded-v1.0"
+    params:
+      config_key: "CONFIG_STRICT_KERNEL_RWX"
+      expected_value: "y"
+
+  - id: "CIS-1.5.4"
+    category: "kernel-config"
+    title: "Enable strict module memory permissions"
+    severity: "high"
+    eval_type: "kernel_config_is_set"
+    source: "cis-embedded-v1.0"
+    params:
+      config_key: "CONFIG_STRICT_MODULE_RWX"
+      expected_value: "y"
+
+  - id: "CIS-1.6.1"
+    category: "kernel-config"
+    title: "Restrict kernel module loading after boot"
+    severity: "medium"
+    eval_type: "kernel_config_is_set"
+    source: "cis-embedded-v1.0"
+    params:
+      config_key: "CONFIG_MODULE_SIG_FORCE"
+      expected_value: "y"
+
+  - id: "CIS-1.6.2"
+    category: "kernel-config"
+    title: "Disable kprobes when not needed"
+    severity: "low"
+    eval_type: "kernel_config_is_set"
+    source: "cis-embedded-v1.0"
+    params:
+      config_key: "CONFIG_KPROBES"
+      expected_value: "is not set"
+
+  - id: "CIS-1.7.1"
+    category: "kernel-config"
+    title: "Enable SECCOMP with strict mode"
+    severity: "medium"
+    eval_type: "kernel_config_is_set"
+    source: "cis-embedded-v1.0"
+    params:
+      config_key: "CONFIG_SECCOMP"
+      expected_value: "y"
+
+  - id: "CIS-1.7.2"
+    category: "kernel-config"
+    title: "Enable SYN_COOKIES protection"
+    severity: "medium"
+    eval_type: "kernel_config_is_set"
+    source: "cis-embedded-v1.0"
+    params:
+      config_key: "CONFIG_SYN_COOKIES"
+      expected_value: "y"
+
+  - id: "CIS-1.7.3"
+    category: "kernel-config"
+    title: "Enable BPF JIT hardening"
+    severity: "medium"
+    eval_type: "kernel_config_is_set"
+    source: "cis-embedded-v1.0"
+    params:
+      config_key: "CONFIG_BPF_JIT_HARDEN"
+      expected_value: "y"
+
+  # ---- 2. Compiler Flags ----
+  - id: "CIS-2.1.1"
+    category: "compiler-flags"
+    title: "Enable FORTIFY_SOURCE buffer overflow detection"
+    severity: "high"
+    eval_type: "cflag_contains"
+    source: "cis-embedded-v1.0"
+    params:
+      flag: "-D_FORTIFY_SOURCE=2"
+      scope: "all_packages"
+      min_packages: 0
+
+  - id: "CIS-2.1.2"
+    category: "compiler-flags"
+    title: "Enable stack smashing protection (stack canary)"
+    severity: "high"
+    eval_type: "cflag_contains"
+    source: "cis-embedded-v1.0"
+    params:
+      flag: "-fstack-protector-strong"
+      scope: "all_packages"
+      min_packages: 0
+
+  - id: "CIS-2.1.3"
+    category: "compiler-flags"
+    title: "Enable position-independent executables (PIE)"
+    severity: "medium"
+    eval_type: "cflag_contains"
+    source: "cis-embedded-v1.0"
+    params:
+      flag: "-fPIE"
+      scope: "all_packages"
+      min_packages: 0
+
+  - id: "CIS-2.1.4"
+    category: "compiler-flags"
+    title: "Enable RELRO (read-only relocations)"
+    severity: "medium"
+    eval_type: "cflag_contains"
+    source: "cis-embedded-v1.0"
+    params:
+      flag: "-Wl,-z,relro"
+      scope: "all_packages"
+      min_packages: 0
+
+  - id: "CIS-2.1.5"
+    category: "compiler-flags"
+    title: "Enable BIND_NOW (immediate binding)"
+    severity: "medium"
+    eval_type: "cflag_contains"
+    source: "cis-embedded-v1.0"
+    params:
+      flag: "-Wl,-z,now"
+      scope: "all_packages"
+      min_packages: 0
+
+  - id: "CIS-2.1.6"
+    category: "compiler-flags"
+    title: "Enable stack clash protection"
+    severity: "high"
+    eval_type: "cflag_contains"
+    source: "cis-embedded-v1.0"
+    params:
+      flag: "-fstack-clash-protection"
+      scope: "all_packages"
+      min_packages: 0
+
+  - id: "CIS-2.1.7"
+    category: "compiler-flags"
+    title: "Enable format string protection (-Wformat-security)"
+    severity: "medium"
+    eval_type: "cflag_contains"
+    source: "cis-embedded-v1.0"
+    params:
+      flag: "-Wformat-security"
+      scope: "all_packages"
+      min_packages: 0
+
+  - id: "CIS-2.1.8"
+    category: "compiler-flags"
+    title: "Require -fno-common (prevent tentative definition collisions)"
+    severity: "low"
+    eval_type: "cflag_contains"
+    source: "cis-embedded-v1.0"
+    params:
+      flag: "-fno-common"
+      scope: "all_packages"
+      min_packages: 0
+
+  # ---- 3. Distro Features ----
+  - id: "CIS-3.1.1"
+    category: "distro-feature"
+    title: "PAM (Pluggable Authentication Modules) enabled"
+    severity: "high"
+    eval_type: "distro_features_contain"
+    source: "cis-embedded-v1.0"
+    params:
+      required_features:
+        - "pam"
+
+  - id: "CIS-3.1.2"
+    category: "distro-feature"
+    title: "Security features enabled in DISTRO_FEATURES"
+    severity: "high"
+    eval_type: "distro_features_contain"
+    source: "cis-embedded-v1.0"
+    params:
+      required_features:
+        - "security"
+
+  # ---- 4. Runtime Services (evaluated from rootfs) ----
+  - id: "CIS-4.1.1"
+    category: "runtime-service"
+    title: "Ensure unnecessary services are disabled"
+    severity: "medium"
+    eval_type: "service_list_match"
+    source: "cis-embedded-v1.0"
+    params:
+      allowed_services:
+        - "syslog.service"
+        - "systemd-journald.service"
+        - "network.service"
+        - "sshd.service"
+        - "crond.service"
+      allow_extra: true
+
+  # ---- 5. File Permissions (evaluated from rootfs) ----
+  - id: "CIS-5.1.1"
+    category: "runtime-file"
+    title: "Ensure /etc/shadow has correct permissions"
+    severity: "high"
+    eval_type: "file_permission_check"
+    source: "cis-embedded-v1.0"
+    params:
+      path: "etc/shadow"
+      max_mode: 400
+      expected_uid: 0
+
+  - id: "CIS-5.1.2"
+    category: "runtime-file"
+    title: "Ensure /etc/passwd has correct permissions"
+    severity: "medium"
+    eval_type: "file_permission_check"
+    source: "cis-embedded-v1.0"
+    params:
+      path: "etc/passwd"
+      max_mode: 644
+      expected_uid: 0
+
+  - id: "CIS-5.2.1"
+    category: "runtime-file"
+    title: "Ensure SSH PermitRootLogin is disabled"
+    severity: "high"
+    eval_type: "file_content_check"
+    source: "cis-embedded-v1.0"
+    params:
+      path: "etc/ssh/sshd_config"
+      must_not_contain_regex: "^PermitRootLogin\\s+yes"
+
+  - id: "CIS-5.2.2"
+    category: "runtime-file"
+    title: "Ensure SSH password authentication is disabled"
+    severity: "medium"
+    eval_type: "file_content_check"
+    source: "cis-embedded-v1.0"
+    params:
+      path: "etc/ssh/sshd_config"
+      must_not_contain_regex: "^PasswordAuthentication\\s+yes"
+
+  - id: "CIS-5.3.1"
+    category: "runtime-file"
+    title: "Ensure NTP is configured with at least one server"
+    severity: "low"
+    eval_type: "file_content_check"
+    source: "cis-embedded-v1.0"
+    params:
+      path: "etc/chrony/chrony.conf"
+      must_contain_regex: "^(server|pool)\\s"
+      min_matches: 1
+
+  # ---- 6. Network Hardening (kernel config) ----
+  - id: "CIS-6.1.1"
+    category: "kernel-config"
+    title: "Disable IP forwarding"
+    severity: "medium"
+    eval_type: "kernel_config_is_set"
+    source: "cis-embedded-v1.0"
+    params:
+      config_key: "CONFIG_IP_FORWARD"
+      expected_value: "is not set"
+
+  - id: "CIS-6.1.2"
+    category: "kernel-config"
+    title: "Enable reverse path filtering"
+    severity: "medium"
+    eval_type: "kernel_config_is_set"
+    source: "cis-embedded-v1.0"
+    params:
+      config_key: "CONFIG_IP_NF_MATCH_RPFILTER"
+      expected_value: "y"
+
+  - id: "CIS-6.2.1"
+    category: "kernel-config"
+    title: "Disable uncommon network protocols"
+    severity: "low"
+    eval_type: "kernel_config_not_set"
+    source: "cis-embedded-v1.0"
+    params:
+      config_keys:
+        - "CONFIG_DCCP"
+        - "CONFIG_SCTP"
+        - "CONFIG_RDS"
+        - "CONFIG_TIPC"
+
+  # ---- 7. Kernel Integrity and Hardening ----
+  - id: "CIS-7.1.1"
+    category: "kernel-config"
+    title: "Enable Integrity Measurement Architecture (IMA)"
+    severity: "medium"
+    eval_type: "kernel_config_is_set"
+    source: "cis-embedded-v1.0"
+    params:
+      config_key: "CONFIG_IMA"
+      expected_value: "y"
+
+  - id: "CIS-7.1.2"
+    category: "kernel-config"
+    title: "Enable kernel lockdown mode"
+    severity: "high"
+    eval_type: "kernel_config_is_set"
+    source: "cis-embedded-v1.0"
+    params:
+      config_key: "CONFIG_LOCK_DOWN_KERNEL_FORCE_CONFIDENTIALITY"
+      expected_value: "y"
+
+  - id: "CIS-7.1.3"
+    category: "kernel-config"
+    title: "Enable Yama LSM for ptrace restrictions"
+    severity: "medium"
+    eval_type: "kernel_config_is_set"
+    source: "cis-embedded-v1.0"
+    params:
+      config_key: "CONFIG_SECURITY_YAMA"
+      expected_value: "y"
+
+  - id: "CIS-7.1.4"
+    category: "kernel-config"
+    title: "Enable Landlock LSM for unprivileged sandboxing"
+    severity: "medium"
+    eval_type: "kernel_config_is_set"
+    source: "cis-embedded-v1.0"
+    params:
+      config_key: "CONFIG_SECURITY_LANDLOCK"
+      expected_value: "y"
+
+  - id: "CIS-7.2.1"
+    category: "kernel-config"
+    title: "Disable unprivileged eBPF by default"
+    severity: "medium"
+    eval_type: "kernel_config_is_set"
+    source: "cis-embedded-v1.0"
+    params:
+      config_key: "CONFIG_BPF_UNPRIV_DEFAULT_OFF"
+      expected_value: "y"
+
+  - id: "CIS-7.2.2"
+    category: "kernel-config"
+    title: "Enable kernel page table isolation (KPTI)"
+    severity: "high"
+    eval_type: "kernel_config_is_set"
+    source: "cis-embedded-v1.0"
+    params:
+      config_key: "CONFIG_PAGE_TABLE_ISOLATION"
+      expected_value: "y"
+
+  - id: "CIS-7.3.1"
+    category: "kernel-config"
+    title: "Enable hardware entropy source (RDRAND/RDSEED)"
+    severity: "medium"
+    eval_type: "kernel_config_is_set"
+    source: "cis-embedded-v1.0"
+    params:
+      config_key: "CONFIG_RANDOM_TRUST_CPU"
+      expected_value: "y"
+
+  - id: "CIS-7.3.2"
+    category: "kernel-config"
+    title: "Disable /dev/mem access"
+    severity: "high"
+    eval_type: "kernel_config_is_set"
+    source: "cis-embedded-v1.0"
+    params:
+      config_key: "CONFIG_DEVMEM"
+      expected_value: "is not set"
+
+  - id: "CIS-7.3.3"
+    category: "kernel-config"
+    title: "Disable /dev/kmem access"
+    severity: "high"
+    eval_type: "kernel_config_is_set"
+    source: "cis-embedded-v1.0"
+    params:
+      config_key: "CONFIG_DEVKMEM"
+      expected_value: "is not set"
+
+  # ---- 8. Runtime Sysctl Settings (via sysctl.conf check) ----
+  - id: "CIS-8.1.1"
+    category: "runtime-file"
+    title: "Ensure ASLR is enabled at runtime"
+    severity: "high"
+    eval_type: "file_content_check"
+    source: "cis-embedded-v1.0"
+    params:
+      path: "etc/sysctl.conf"
+      must_contain_regex: "^kernel\\.randomize_va_space\\s*=\\s*2"
+      min_matches: 1
+
+  - id: "CIS-8.1.2"
+    category: "runtime-file"
+    title: "Ensure core dumps are restricted"
+    severity: "medium"
+    eval_type: "file_content_check"
+    source: "cis-embedded-v1.0"
+    params:
+      path: "etc/sysctl.conf"
+      must_contain_regex: "^fs\\.suid_dumpable\\s*=\\s*0"
+      min_matches: 1
+
+  - id: "CIS-8.1.3"
+    category: "runtime-file"
+    title: "Ensure IP forwarding is disabled at runtime"
+    severity: "medium"
+    eval_type: "file_content_check"
+    source: "cis-embedded-v1.0"
+    params:
+      path: "etc/sysctl.conf"
+      must_contain_regex: "^net\\.ipv4\\.ip_forward\\s*=\\s*0"
+      min_matches: 1
+
+  - id: "CIS-8.1.4"
+    category: "runtime-file"
+    title: "Ensure ICMP redirects are not accepted"
+    severity: "medium"
+    eval_type: "file_content_check"
+    source: "cis-embedded-v1.0"
+    params:
+      path: "etc/sysctl.conf"
+      must_contain_regex: "^net\\.ipv4\\.conf\\.all\\.accept_redirects\\s*=\\s*0"
+      min_matches: 1
+
+  - id: "CIS-8.1.5"
+    category: "runtime-file"
+    title: "Ensure source-routed packets are not accepted"
+    severity: "medium"
+    eval_type: "file_content_check"
+    source: "cis-embedded-v1.0"
+    params:
+      path: "etc/sysctl.conf"
+      must_contain_regex: "^net\\.ipv4\\.conf\\.all\\.accept_source_route\\s*=\\s*0"
+      min_matches: 1
+
+  - id: "CIS-8.1.6"
+    category: "runtime-file"
+    title: "Ensure TCP SYN cookies are enabled at runtime"
+    severity: "medium"
+    eval_type: "file_content_check"
+    source: "cis-embedded-v1.0"
+    params:
+      path: "etc/sysctl.conf"
+      must_contain_regex: "^net\\.ipv4\\.tcp_syncookies\\s*=\\s*1"
+      min_matches: 1
+
+  # ---- 9. Authentication Hardening (login.defs) ----
+  - id: "CIS-9.1.1"
+    category: "runtime-file"
+    title: "Ensure password hashing uses SHA-512 (login.defs)"
+    severity: "high"
+    eval_type: "file_content_check"
+    source: "cis-embedded-v1.0"
+    params:
+      path: "etc/login.defs"
+      must_contain_regex: "^ENCRYPT_METHOD\\s+SHA512"
+      min_matches: 1
+
+  - id: "CIS-9.1.2"
+    category: "runtime-file"
+    title: "Ensure password minimum length is at least 8"
+    severity: "medium"
+    eval_type: "file_content_check"
+    source: "cis-embedded-v1.0"
+    params:
+      path: "etc/login.defs"
+      must_contain_regex: "^PASS_MIN_LEN\\s+([8-9]|[1-9]\\d+)"
+      min_matches: 1
+
+  - id: "CIS-9.1.3"
+    category: "runtime-file"
+    title: "Ensure PASS_MAX_DAYS is 90 or less"
+    severity: "low"
+    eval_type: "file_content_check"
+    source: "cis-embedded-v1.0"
+    params:
+      path: "etc/login.defs"
+      must_contain_regex: "^PASS_MAX_DAYS\\s+(90|[1-8]?\\d)$"
+      min_matches: 1
+
+  # ---- 10. Filesystem Mount Options (runtime) ----
+  - id: "CIS-10.1.1"
+    category: "runtime-file"
+    title: "Ensure /tmp is mounted with noexec,nosuid,nodev"
+    severity: "medium"
+    eval_type: "file_content_check"
+    source: "cis-embedded-v1.0"
+    params:
+      path: "etc/fstab"
+      must_contain_regex: "/tmp.*noexec"
+      min_matches: 1
+
+  - id: "CIS-10.1.2"
+    category: "runtime-file"
+    title: "Ensure /var/tmp is bind-mounted to /tmp or separate partition"
+    severity: "low"
+    eval_type: "file_content_check"
+    source: "cis-embedded-v1.0"
+    params:
+      path: "etc/fstab"
+      must_contain_regex: "/var/tmp"
+      min_matches: 1
+
+  # ---- 11. Mandatory Access Control ----
+  - id: "CIS-11.1.1"
+    category: "kernel-config"
+    title: "Enable SELinux LSM support in kernel"
+    severity: "high"
+    eval_type: "kernel_config_is_set"
+    source: "cis-embedded-v1.0"
+    params:
+      config_key: "CONFIG_SECURITY_SELINUX"
+      expected_value: "y"
+
+  - id: "CIS-11.1.2"
+    category: "kernel-config"
+    title: "Enable AppArmor as alternative to SELinux"
+    severity: "medium"
+    eval_type: "kernel_config_is_set"
+    source: "cis-embedded-v1.0"
+    params:
+      config_key: "CONFIG_SECURITY_APPARMOR"
+      expected_value: "y"
